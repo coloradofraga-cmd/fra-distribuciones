@@ -54,6 +54,7 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
       toast.error("Error al actualizar stock");
     } else {
       setProducts((prev) => prev.map((p) => p.id === id ? { ...p, in_stock: !current } : p));
+      toast.success("Stock actualizado");
     }
   }
 

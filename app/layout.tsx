@@ -24,12 +24,12 @@ export default function RootLayout({
         {children}
         <Toaster
           position="bottom-center"
+          offset={{ bottom: 88 }}
           toastOptions={{
             style: {
               fontFamily: "Plus Jakarta Sans, sans-serif",
               fontSize: "14px",
               borderRadius: "12px",
-              marginBottom: "80px",
             },
           }}
         />
