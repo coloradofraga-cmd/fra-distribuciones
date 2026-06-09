@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
 import { useCartStore } from "@/lib/store/cartStore";
 import { formatPrice } from "@/lib/supabase/types";
 import BottomNav from "@/components/layout/BottomNav";
@@ -58,7 +59,7 @@ export default function CarritoPage() {
                       <span className="font-normal text-[var(--color-outline)]"> · {product.unit}</span>
                     </h4>
                     <button
-                      onClick={() => removeItem(product.id)}
+                      onClick={() => { removeItem(product.id); toast("Producto eliminado", { duration: 1500 }); }}
                       className="text-[var(--color-outline)] active:scale-90 transition-transform flex-shrink-0"
                     >
                       <span className="material-symbols-outlined text-[20px]">close</span>
@@ -73,7 +74,7 @@ export default function CarritoPage() {
                     </span>
                     <div className="flex items-center bg-[var(--color-surface-container-high)] rounded-full px-1">
                       <button
-                        onClick={() => updateQuantity(product.id, quantity - 1)}
+                        onClick={() => { if (quantity === 1) { removeItem(product.id); toast("Producto eliminado", { duration: 1500 }); } else { updateQuantity(product.id, quantity - 1); } }}
                         className="w-8 h-8 flex items-center justify-center text-[var(--color-primary)] active:scale-90 transition-transform"
                       >
                         <span className="material-symbols-outlined text-[18px]">remove</span>
