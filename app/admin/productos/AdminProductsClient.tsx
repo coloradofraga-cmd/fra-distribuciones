@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { DbProduct } from "@/lib/supabase/types";
+import { toast } from "sonner";
 
 type EditingProduct = {
   id: string;
@@ -36,25 +37,37 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
       .from("products")
       .update({ name: editing.name, brand: editing.brand, price: editing.price, in_stock: editing.in_stock })
       .eq("id", editing.id);
-    if (!error) {
+    if (error) {
+      toast.error("Error al guardar");
+    } else {
       setProducts((prev) => prev.map((p) => p.id === editing.id ? { ...p, ...editing } : p));
       setEditing(null);
+      toast.success("Producto guardado");
     }
     setSaving(false);
   }
 
   async function toggleStock(id: string, current: boolean) {
     const supabase = createClient();
-    await supabase.from("products").update({ in_stock: !current }).eq("id", id);
-    setProducts((prev) => prev.map((p) => p.id === id ? { ...p, in_stock: !current } : p));
+    const { error } = await supabase.from("products").update({ in_stock: !current }).eq("id", id);
+    if (error) {
+      toast.error("Error al actualizar stock");
+    } else {
+      setProducts((prev) => prev.map((p) => p.id === id ? { ...p, in_stock: !current } : p));
+    }
   }
 
   async function deleteProduct(id: string) {
     if (!confirm("¿Eliminar este producto?")) return;
     setDeleting(id);
     const supabase = createClient();
-    await supabase.from("products").delete().eq("id", id);
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar");
+    } else {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast("Producto eliminado");
+    }
     setDeleting(null);
   }
 

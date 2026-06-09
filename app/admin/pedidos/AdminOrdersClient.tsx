@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 type Order = {
   id: string;
@@ -30,8 +31,13 @@ export default function AdminOrdersClient({ initialOrders }: { initialOrders: Or
 
   async function updateStatus(id: string, status: string) {
     const supabase = createClient();
-    await supabase.from("orders").update({ status }).eq("id", id);
-    setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
+    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    if (error) {
+      toast.error("Error al actualizar");
+    } else {
+      setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
+      toast.success("Estado actualizado");
+    }
   }
 
   return (
