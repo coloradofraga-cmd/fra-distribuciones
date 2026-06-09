@@ -43,7 +43,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
 
-        <section className="px-4 pt-4">
+        <section className="px-4 pt-4 fade-up">
           {products.length === 0 ? (
             <div className="text-center py-16 text-[var(--color-outline)]">
               <span className="material-symbols-outlined text-[64px] block mb-4">inventory_2</span>

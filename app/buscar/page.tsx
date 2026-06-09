@@ -123,7 +123,7 @@ function BuscarContent() {
         </section>
 
         {/* Resultados */}
-        <section className="px-4 pt-2">
+        <section className="px-4 pt-2 fade-up">
           {loading && (
             <div className="flex justify-center py-16">
               <span className="material-symbols-outlined text-[40px] text-[var(--color-outline-variant)] animate-spin">progress_activity</span>
