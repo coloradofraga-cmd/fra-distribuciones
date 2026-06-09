@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,8 +21,10 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError("Email o contraseña incorrectos.");
+      toast.error("Email o contraseña incorrectos");
       setLoading(false);
     } else {
+      toast.success("¡Bienvenido de vuelta!");
       router.push("/perfil");
       router.refresh();
     }

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -9,6 +10,7 @@ export default function LogoutButton() {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    toast("Sesión cerrada", { duration: 1500 });
     router.push("/");
     router.refresh();
   }

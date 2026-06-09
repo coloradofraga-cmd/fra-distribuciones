@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -29,8 +30,10 @@ export default function RegistroPage() {
     });
     if (error) {
       setError(error.message);
+      toast.error("Error al crear la cuenta");
       setLoading(false);
     } else {
+      toast.success("Cuenta creada. ¡Bienvenido!");
       router.push("/perfil");
       router.refresh();
     }
