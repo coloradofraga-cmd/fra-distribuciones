@@ -5,10 +5,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import { getCategories, getProductsByCategory } from "@/lib/supabase/queries";
 
-export async function generateStaticParams() {
-  const categories = await getCategories();
-  return categories.map((c) => ({ slug: c.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
