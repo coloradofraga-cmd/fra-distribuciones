@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { DbProduct, DbCategory, formatPrice } from "@/lib/supabase/types";
 import { useCartStore } from "@/lib/store/cartStore";
+import { toast } from "sonner";
 
 type Props = {
   product: DbProduct;
@@ -18,6 +19,10 @@ export default function ProductDetail({ product, related, category }: Props) {
 
   function handleAddToCart() {
     for (let i = 0; i < qty; i++) addItem(product);
+    toast.success("Agregado al carrito", {
+      description: product.name,
+      duration: 2000,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
