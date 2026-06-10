@@ -81,6 +81,18 @@ export type DbOrderWithItems = {
   }[];
 };
 
+export async function getDiscountedProducts(limit = 6): Promise<DbProduct[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .not("compare_at_price", "is", null)
+    .eq("in_stock", true)
+    .order("name")
+    .limit(limit);
+  return data ?? [];
+}
+
 export async function getUserOrders(userId: string): Promise<DbOrderWithItems[]> {
   const supabase = await createClient();
   const { data } = await supabase

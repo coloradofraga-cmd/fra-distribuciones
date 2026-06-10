@@ -3,16 +3,17 @@ import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
 import ProductCard from "@/components/products/ProductCard";
 import SearchBar from "@/components/SearchBar";
-import { getCategories, getFeaturedProducts, getProductsByIds } from "@/lib/supabase/queries";
+import { getCategories, getFeaturedProducts, getProductsByIds, getDiscountedProducts } from "@/lib/supabase/queries";
 import { formatPrice } from "@/lib/supabase/types";
 
 const TOP_IDS = ["6", "22", "58"];
 
 export default async function Home() {
-  const [categories, featured, topProducts] = await Promise.all([
+  const [categories, featured, topProducts, discounted] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
     getProductsByIds(TOP_IDS),
+    getDiscountedProducts(),
   ]);
 
   const navCats = categories.filter((c) => c.id !== "etc");
@@ -37,17 +38,17 @@ export default async function Home() {
             <div className="absolute right-8 top-6 w-16 h-16 rounded-full bg-white/10" />
             <div className="absolute inset-0 flex flex-col justify-center px-6">
               <span className="bg-[var(--color-fresh-green)] text-white text-[11px] font-bold px-3 py-1 rounded-full w-fit mb-3 tracking-wide">
-                OFERTA DE LA SEMANA
+                DISTRIBUCIÓN MAYORISTA
               </span>
               <h2 className="text-[28px] font-extrabold leading-tight mb-1 text-white tracking-tight">
-                Higiene Total<br />para tu Hogar
+                Limpieza Total<br />para tu Hogar
               </h2>
-              <p className="text-[14px] text-white/80 mb-4 font-medium">Hasta 30% OFF en desinfectantes</p>
+              <p className="text-[14px] text-white/80 mb-4 font-medium">Productos de higiene al mejor precio</p>
               <Link
                 href="/categorias"
                 className="bg-white text-[var(--color-primary)] font-bold py-2.5 px-6 rounded-full w-fit text-[13px] shadow-lg active:scale-95 transition-transform"
               >
-                Comprar ahora
+                Ver catálogo
               </Link>
             </div>
           </div>
@@ -90,50 +91,50 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Ofertas especiales */}
-        <section className="px-4 flex flex-col gap-3 fade-up fade-up-delay-4">
-          <h3 className="text-[17px] font-bold text-[var(--color-deep-charcoal)] tracking-tight">Ofertas Especiales</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <div
-              className="col-span-1 row-span-2 rounded-3xl p-5 flex flex-col justify-between overflow-hidden relative shadow-[0_4px_24px_rgba(0,79,68,0.2)]"
-              style={{ background: "linear-gradient(160deg, #004f44 0%, #00362e 100%)", minHeight: 200 }}
-            >
-              <div className="z-10 relative">
-                <span className="text-[11px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full">PACK AHORRO</span>
-                <h4 className="text-[22px] font-extrabold mt-3 leading-tight text-white tracking-tight">
-                  Combo<br />Lavandería
-                </h4>
-                <p className="text-[12px] mt-1 text-white/70 font-medium">4 productos esenciales</p>
-              </div>
-              <div className="z-10 relative">
-                <span className="text-[20px] font-extrabold text-white">$89.000</span>
-                <span className="text-[12px] line-through block text-white/50 font-medium">$120.000</span>
-              </div>
-              <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-[var(--color-fresh-green)]/30 rounded-full blur-xl" />
-              <div className="absolute -right-2 top-4 w-16 h-16 bg-white/5 rounded-full" />
+        {/* Ofertas reales */}
+        {discounted.length > 0 && (
+          <section className="flex flex-col gap-3 fade-up fade-up-delay-4">
+            <div className="flex justify-between items-center px-4">
+              <h3 className="text-[17px] font-bold text-[var(--color-deep-charcoal)] tracking-tight">En oferta</h3>
+              <Link href="/buscar?oferta=1" className="text-[var(--color-fresh-green)] font-semibold text-[13px]">
+                Ver todas
+              </Link>
             </div>
-            <div className="rounded-3xl p-4 flex items-center justify-between bg-[var(--color-secondary-container)] shadow-sm">
-              <div>
-                <span className="text-[10px] font-bold text-[var(--color-secondary)] tracking-wide">FLASH SALE</span>
-                <h4 className="text-[15px] font-bold text-[var(--color-deep-charcoal)] mt-0.5">Esponjas x10</h4>
-                <p className="text-[17px] font-extrabold text-[var(--color-primary)] mt-0.5">$5.500</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[var(--color-primary)] text-[22px]">bolt</span>
-              </div>
+            <div className="flex overflow-x-auto gap-3 px-4 hide-scrollbar pb-1">
+              {discounted.map((product) => {
+                const discount = product.compare_at_price
+                  ? Math.round((1 - product.price / product.compare_at_price) * 100)
+                  : 0;
+                return (
+                  <Link
+                    key={product.id}
+                    href={`/productos/${product.slug}`}
+                    className="flex-shrink-0 w-40 bg-white rounded-2xl border border-[var(--color-surface-variant)] shadow-sm overflow-hidden flex flex-col active:scale-[0.98] transition-transform"
+                  >
+                    <div className="relative h-28 bg-[var(--color-surface-container)] flex items-center justify-center">
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} className="w-full h-full object-contain p-2" />
+                      ) : (
+                        <span className="material-symbols-outlined text-[48px] text-[var(--color-outline-variant)]">inventory_2</span>
+                      )}
+                      <span className="absolute top-2 left-2 bg-[var(--color-error-red)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        -{discount}%
+                      </span>
+                    </div>
+                    <div className="p-3 flex flex-col gap-0.5">
+                      <span className="text-[11px] text-[var(--color-secondary)] font-semibold">{product.brand}</span>
+                      <h4 className="text-[13px] font-bold text-[var(--color-deep-charcoal)] line-clamp-2 leading-tight">{product.name}</h4>
+                      <div className="mt-1.5 flex flex-col">
+                        <span className="text-[15px] font-extrabold text-[var(--color-primary)]">{formatPrice(product.price)}</span>
+                        <span className="text-[11px] line-through text-[var(--color-outline)]">{formatPrice(product.compare_at_price!)}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
-            <div className="rounded-3xl p-4 flex items-center justify-between bg-[var(--color-surface-container-high)] shadow-sm">
-              <div>
-                <span className="text-[10px] font-bold text-[var(--color-fresh-green)] tracking-wide">NUEVO</span>
-                <h4 className="text-[15px] font-bold text-[var(--color-deep-charcoal)] mt-0.5">Aromatizante</h4>
-                <p className="text-[17px] font-extrabold text-[var(--color-tertiary)] mt-0.5">$15.200</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-[var(--color-fresh-green)]/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[var(--color-fresh-green)] text-[22px]">eco</span>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Recomendados */}
         <section className="flex flex-col gap-3">
