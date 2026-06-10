@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { DbProduct, DbCategory, formatPrice } from "@/lib/supabase/types";
 import { useCartStore } from "@/lib/store/cartStore";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export default function ProductDetail({ product, related, category }: Props) {
+  const router = useRouter();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
@@ -113,7 +115,13 @@ export default function ProductDetail({ product, related, category }: Props) {
               {added ? "¡Agregado!" : "Añadir al carrito"}
             </button>
 
-            <button className="w-full border-2 border-[var(--color-outline-variant)] text-[var(--color-deep-charcoal)] h-14 rounded-xl font-bold text-[16px] hover:bg-[var(--color-surface-variant)] transition-colors active:scale-[0.98]">
+            <button
+              onClick={() => {
+                for (let i = 0; i < qty; i++) addItem(product);
+                router.push("/checkout");
+              }}
+              className="w-full border-2 border-[var(--color-outline-variant)] text-[var(--color-deep-charcoal)] h-14 rounded-xl font-bold text-[16px] hover:bg-[var(--color-surface-variant)] transition-colors active:scale-[0.98]"
+            >
               Comprar ahora
             </button>
           </div>
@@ -147,7 +155,11 @@ export default function ProductDetail({ product, related, category }: Props) {
                     <div className="flex items-center justify-between mt-1">
                       <span className="font-bold text-[var(--color-primary)]">{formatPrice(p.price)}</span>
                       <button
-                        onClick={(e) => e.preventDefault()}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addItem(p);
+                          toast.success("Agregado al carrito", { description: p.name, duration: 2000 });
+                        }}
                         className="bg-[var(--color-fresh-green)] text-white w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-transform"
                       >
                         <span className="material-symbols-outlined text-[18px]">add</span>

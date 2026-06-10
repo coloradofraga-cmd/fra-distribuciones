@@ -55,7 +55,12 @@ export default function LoginPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-semibold text-[var(--color-deep-charcoal)]">Contraseña</label>
+            <div className="flex items-center justify-between">
+              <label className="text-[13px] font-semibold text-[var(--color-deep-charcoal)]">Contraseña</label>
+              <Link href="/recuperar-contrasena" className="text-[12px] text-[var(--color-primary)] font-semibold">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <input
               type="password"
               value={password}

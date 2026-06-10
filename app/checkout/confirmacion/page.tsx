@@ -28,7 +28,7 @@ export default function ConfirmacionPage() {
             Volver al inicio
           </Link>
           <Link
-            href="/perfil"
+            href="/perfil/pedidos"
             className="h-14 rounded-xl border-2 border-[var(--color-outline-variant)] text-[var(--color-deep-charcoal)] font-bold text-[16px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
           >
             Ver mis pedidos

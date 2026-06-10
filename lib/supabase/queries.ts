@@ -68,3 +68,25 @@ export async function getProductsByIds(ids: string[]): Promise<DbProduct[]> {
     .in("id", ids);
   return data ?? [];
 }
+
+export type DbOrderWithItems = {
+  id: string;
+  status: string;
+  total: number;
+  created_at: string;
+  order_items: {
+    quantity: number;
+    unit_price: number;
+    products: { name: string; unit: string } | null;
+  }[];
+};
+
+export async function getUserOrders(userId: string): Promise<DbOrderWithItems[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("id, status, total, created_at, order_items(quantity, unit_price, products(name, unit))")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  return (data as unknown as DbOrderWithItems[]) ?? [];
+}

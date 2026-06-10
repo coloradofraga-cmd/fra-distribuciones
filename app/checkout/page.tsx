@@ -61,6 +61,26 @@ export default function CheckoutPage() {
       return;
     }
 
+    // fire-and-forget — email failure doesn't block order confirmation
+    fetch("/api/send-order-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderId: order.id,
+        orderIdShort: order.id.slice(0, 8),
+        total: totalPrice(),
+        name,
+        address,
+        phone,
+        userEmail: user?.email ?? "",
+        items: items.map((i) => ({
+          name: i.product.name,
+          quantity: i.quantity,
+          unit_price: i.product.price,
+        })),
+      }),
+    });
+
     clearCart();
     router.push(`/checkout/confirmacion?order=${order.id}`);
   }

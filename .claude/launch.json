@@ -2,11 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "fra-distribuciones",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3001,
-      "autoPort": true
+      "name": "fra-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd \"C:\\Users\\Colores\\OneDrive\\Desktop\\Mi Bóveda\\colores\\bobeda de app FRA\\fra-distribuciones\" && npm run dev -- --port 3001"],
+      "port": 3001
     }
   ]
 }

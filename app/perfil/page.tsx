@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import BottomNav from "@/components/layout/BottomNav";
 import LogoutButton from "@/components/auth/LogoutButton";
@@ -56,16 +57,16 @@ export default async function PerfilPage() {
         </div>
 
         {/* Mis pedidos */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[var(--color-surface-variant)]">
+        <Link href="/perfil/pedidos" className="bg-white rounded-2xl shadow-sm border border-[var(--color-surface-variant)] active:scale-[0.98] transition-transform">
           <div className="flex items-center gap-3 px-4 py-4">
             <span className="material-symbols-outlined text-[var(--color-primary)]">receipt_long</span>
             <div className="flex-1">
               <p className="text-[15px] font-semibold text-[var(--color-deep-charcoal)]">Mis pedidos</p>
-              <p className="text-[12px] text-[var(--color-on-surface-variant)]">Próximamente</p>
+              <p className="text-[12px] text-[var(--color-on-surface-variant)]">Ver historial de compras</p>
             </div>
             <span className="material-symbols-outlined text-[var(--color-outline)]">chevron_right</span>
           </div>
-        </div>
+        </Link>
 
         <LogoutButton />
       </main>
