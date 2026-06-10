@@ -41,7 +41,7 @@ export default function CheckoutPage() {
       .single();
 
     if (orderError || !order) {
-      setError("Error al crear el pedido. Intentá de nuevo.");
+      setError("No pudimos registrar tu pedido. Verificá tu conexión e intentá de nuevo.");
       setLoading(false);
       return;
     }
@@ -56,7 +56,7 @@ export default function CheckoutPage() {
     const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
 
     if (itemsError) {
-      setError("Error al guardar los productos. Intentá de nuevo.");
+      setError("Hubo un problema al guardar los productos. Intentá de nuevo.");
       setLoading(false);
       return;
     }
@@ -162,7 +162,7 @@ export default function CheckoutPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-14 rounded-xl bg-[var(--color-fresh-green)] text-white font-bold text-[16px] flex items-center justify-center gap-2 shadow-lg shadow-[var(--color-fresh-green)]/20 active:scale-[0.98] transition-all disabled:opacity-60"
+            className="w-full h-14 rounded-xl bg-[var(--color-fresh-green)] text-white font-bold text-[16px] flex items-center justify-center gap-2 shadow-lg shadow-[var(--color-fresh-green)]/20 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span className="material-symbols-outlined">check_circle</span>
             {loading ? "Confirmando..." : "Confirmar pedido"}

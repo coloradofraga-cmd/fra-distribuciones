@@ -28,14 +28,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             FRA Distribuciones
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="active:scale-95 transition-transform">
-            <span className="material-symbols-outlined text-[var(--color-on-surface-variant)]">share</span>
-          </button>
-          <button className="active:scale-95 transition-transform">
-            <span className="material-symbols-outlined text-[var(--color-on-surface-variant)]">favorite_border</span>
-          </button>
-        </div>
       </header>
       <ProductDetail product={product} related={related} category={category} />
       <BottomNav />
