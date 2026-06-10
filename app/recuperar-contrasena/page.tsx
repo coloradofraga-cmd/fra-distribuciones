@@ -16,7 +16,7 @@ export default function RecuperarContrasenaPage() {
     setLoading(true);
     const supabase = createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/recuperar-contrasena/nueva`,
+      redirectTo: `${window.location.origin}/auth/callback?next=/recuperar-contrasena/nueva`,
     });
     if (error) {
       setError("No pudimos enviar el email. Verificá la dirección.");
