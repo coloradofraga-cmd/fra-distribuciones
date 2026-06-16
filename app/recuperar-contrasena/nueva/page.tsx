@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -9,7 +9,24 @@ export default function NuevaContrasenaPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    // Supabase lee el hash (#access_token=...&type=recovery) automáticamente
+    // y dispara PASSWORD_RECOVERY cuando el link es válido
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setReady(true);
+      }
+    });
+    // También chequeamos si ya hay sesión activa (por si el evento ya se disparó)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,6 +48,17 @@ export default function NuevaContrasenaPage() {
     } else {
       router.push("/perfil");
     }
+  }
+
+  if (!ready) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center px-4 bg-[var(--color-surface)]">
+        <div className="flex flex-col items-center gap-3">
+          <span className="material-symbols-outlined text-[48px] text-[var(--color-primary)] animate-spin">progress_activity</span>
+          <p className="text-[14px] text-[var(--color-on-surface-variant)]">Verificando link...</p>
+        </div>
+      </main>
+    );
   }
 
   return (
