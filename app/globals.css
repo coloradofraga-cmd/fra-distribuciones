@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 @import "tailwindcss";
 
@@ -53,9 +53,9 @@
   --color-deep-charcoal: #273239;
 
   /* === Tipografías === */
-  --font-headline: "Outfit", sans-serif;
-  --font-body:     "Outfit", sans-serif;
-  --font-ui:       "Plus Jakarta Sans", sans-serif;
+  --font-headline: "Inter", sans-serif;
+  --font-body:     "Inter", sans-serif;
+  --font-ui:       "Inter", sans-serif;
 
   /* === Spacing (base 8px) === */
   --spacing-stack-sm:       4px;
