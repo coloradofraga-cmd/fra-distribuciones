@@ -19,41 +19,27 @@ function BuscarContent() {
 
   const [q, setQ] = useState(initialQ);
   const [cat, setCat] = useState(initialCat);
-  const [results, setResults] = useState<DbProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<DbProduct[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.from("categories").select("*").order("id").then(({ data }) => {
-      setCategories(data ?? []);
+    Promise.all([
+      supabase.from("categories").select("*").order("id"),
+      supabase.from("products").select("*").order("name").limit(80),
+    ]).then(([{ data: cats }, { data: prods }]) => {
+      setCategories(cats ?? []);
+      setAllProducts(prods ?? []);
+      setLoading(false);
     });
   }, []);
 
-  useEffect(() => {
-    if (!initialQ && !initialCat) return;
-    runSearch(initialQ, initialCat);
-  }, []);
-
-  async function runSearch(query: string, category: string) {
-    if (!query.trim() && !category) return;
-    setLoading(true);
-    setSearched(true);
-    const supabase = createClient();
-    let req = supabase
-      .from("products")
-      .select("*")
-      .order("name")
-      .limit(40);
-    if (query.trim()) {
-      req = req.or(`name.ilike.%${query}%,brand.ilike.%${query}%,description.ilike.%${query}%`);
-    }
-    if (category) req = req.eq("category", category);
-    const { data } = await req;
-    setResults(data ?? []);
-    setLoading(false);
-  }
+  const results = allProducts.filter((p) => {
+    const matchQ = !q.trim() || `${p.name} ${p.brand} ${p.description ?? ""}`.toLowerCase().includes(q.toLowerCase());
+    const matchCat = !cat || p.category === cat;
+    return matchQ && matchCat;
+  });
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -63,7 +49,6 @@ function BuscarContent() {
       if (cat) params.set("cat", cat);
       router.replace(`/buscar?${params.toString()}`);
     });
-    runSearch(q, cat);
   }
 
   function handleCat(catId: string) {
@@ -75,8 +60,6 @@ function BuscarContent() {
       if (next) params.set("cat", next);
       router.replace(`/buscar?${params.toString()}`);
     });
-    runSearch(q, next);
-    setSearched(true);
   }
 
   return (
@@ -130,7 +113,7 @@ function BuscarContent() {
             </div>
           )}
 
-          {!loading && searched && results.length === 0 && (
+          {!loading && results.length === 0 && (
             <div className="flex flex-col items-center py-16 gap-3 text-center">
               <span className="material-symbols-outlined text-[64px] text-[var(--color-outline-variant)]">search_off</span>
               <p className="text-[16px] font-semibold text-[var(--color-deep-charcoal)]">Sin resultados</p>
@@ -138,54 +121,58 @@ function BuscarContent() {
             </div>
           )}
 
-          {!loading && !searched && (
-            <div className="flex flex-col items-center py-16 gap-3 text-center">
-              <span className="material-symbols-outlined text-[64px] text-[var(--color-outline-variant)]">manage_search</span>
-              <p className="text-[14px] text-[var(--color-on-surface-variant)]">Escribí para buscar o elegí una categoría</p>
-            </div>
-          )}
-
           {!loading && results.length > 0 && (
             <>
               <p className="text-[12px] text-[var(--color-on-surface-variant)] mb-3">
-                {results.length} resultado{results.length !== 1 ? "s" : ""}
+                {q || cat ? `${results.length} resultado${results.length !== 1 ? "s" : ""}` : `${results.length} productos`}
               </p>
               <div className="grid grid-cols-2 gap-4">
-                {results.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/productos/${product.slug}`}
-                    className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(39,50,57,0.06)] overflow-hidden flex flex-col group"
-                  >
-                    <div className="aspect-square bg-[var(--color-surface-gray)] flex items-center justify-center overflow-hidden">
-                      {product.image ? (
-                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      ) : (
-                        <span className="material-symbols-outlined text-[48px] text-[var(--color-outline-variant)]">inventory_2</span>
-                      )}
-                    </div>
-                    <div className="p-3 flex flex-col flex-grow">
-                      <span className="text-[10px] text-[var(--color-outline)] uppercase font-bold">{product.brand}</span>
-                      <h4 className="text-[13px] font-bold text-[var(--color-on-surface)] leading-tight mt-1 mb-2 line-clamp-2">
-                        {product.name}
-                        <span className="font-normal text-[var(--color-outline)]"> · {product.unit}</span>
-                      </h4>
-                      <div className="mt-auto flex justify-between items-center">
-                        <div>
-                          {product.compare_at_price && (
-                            <span className="text-[11px] line-through text-[var(--color-outline)] block">
-                              {formatPrice(product.compare_at_price)}
-                            </span>
-                          )}
-                          <span className="text-[15px] font-bold text-[var(--color-primary)]">
-                            {formatPrice(product.price)}
-                          </span>
-                        </div>
-                        <AddToCartButton product={product} />
+                {results.map((product) => {
+                  const gradients = [
+                    "linear-gradient(135deg,#00362e,#00A86B)",
+                    "linear-gradient(135deg,#ea580c,#f97316)",
+                    "linear-gradient(135deg,#0e7490,#06b6d4)",
+                    "linear-gradient(135deg,#7c3aed,#a78bfa)",
+                    "linear-gradient(135deg,#b91c1c,#f87171)",
+                  ];
+                  const bg = gradients[product.name.charCodeAt(0) % gradients.length];
+                  return (
+                    <Link
+                      key={product.id}
+                      href={`/productos/${product.slug}`}
+                      className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(39,50,57,0.06)] overflow-hidden flex flex-col group"
+                    >
+                      <div className="aspect-square flex items-center justify-center overflow-hidden"
+                        style={{ background: product.image ? undefined : bg }}>
+                        {product.image ? (
+                          <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <span className="material-symbols-outlined text-[52px] text-white/40">water_drop</span>
+                        )}
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                      <div className="p-3 flex flex-col flex-grow">
+                        <span className="text-[10px] text-[var(--color-outline)] uppercase font-bold">{product.brand}</span>
+                        <h4 className="text-[13px] font-bold text-[var(--color-on-surface)] leading-tight mt-1 mb-2 line-clamp-2">
+                          {product.name}
+                          <span className="font-normal text-[var(--color-outline)]"> · {product.unit}</span>
+                        </h4>
+                        <div className="mt-auto flex justify-between items-center">
+                          <div>
+                            {product.compare_at_price && (
+                              <span className="text-[11px] line-through text-[var(--color-outline)] block">
+                                {formatPrice(product.compare_at_price)}
+                              </span>
+                            )}
+                            <span className="text-[15px] font-bold text-[var(--color-primary)]">
+                              {formatPrice(product.price)}
+                            </span>
+                          </div>
+                          <AddToCartButton product={product} />
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </>
           )}

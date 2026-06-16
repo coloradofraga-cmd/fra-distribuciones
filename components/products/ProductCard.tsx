@@ -3,6 +3,16 @@
 import Link from "next/link";
 import { type DbProduct, formatPrice } from "@/lib/supabase/types";
 import { useFavoritesStore } from "@/lib/store/favoritesStore";
+import { useCartStore } from "@/lib/store/cartStore";
+import { toast } from "sonner";
+
+const PLACEHOLDERS = [
+  "linear-gradient(135deg, #00362e 0%, #00A86B 100%)",
+  "linear-gradient(135deg, #ea580c 0%, #f97316 100%)",
+  "linear-gradient(135deg, #0e7490 0%, #06b6d4 100%)",
+  "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)",
+  "linear-gradient(135deg, #b91c1c 0%, #f87171 100%)",
+];
 
 interface ProductCardProps {
   product: DbProduct;
@@ -11,7 +21,9 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, rank }: ProductCardProps) {
   const { toggle, isFavorite } = useFavoritesStore();
+  const addItem = useCartStore((s) => s.addItem);
   const fav = isFavorite(product.id);
+  const gradient = PLACEHOLDERS[product.name.charCodeAt(0) % PLACEHOLDERS.length];
 
   return (
     <Link
@@ -29,7 +41,8 @@ export default function ProductCard({ product, rank }: ProductCardProps) {
         </span>
       </button>
 
-      <div className="h-32 bg-[var(--color-surface-gray)] overflow-hidden flex items-center justify-center">
+      <div className="h-32 overflow-hidden flex items-center justify-center relative"
+        style={{ background: product.image ? undefined : gradient }}>
         {product.image ? (
           <img
             src={product.image}
@@ -37,8 +50,8 @@ export default function ProductCard({ product, rank }: ProductCardProps) {
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
-          <span className="material-symbols-outlined text-[48px] text-[var(--color-outline-variant)]">
-            inventory_2
+          <span className="material-symbols-outlined text-[52px] text-white/40">
+            water_drop
           </span>
         )}
       </div>
@@ -68,8 +81,10 @@ export default function ProductCard({ product, rank }: ProductCardProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              addItem(product);
+              toast.success("Agregado al carrito", { description: product.name, duration: 2000 });
             }}
-            className="bg-[var(--color-fresh-green)] text-white rounded-full w-8 h-8 flex items-center justify-center active:scale-90 transition-transform"
+            className="bg-[var(--color-fresh-green)] text-white rounded-full w-8 h-8 flex items-center justify-center active:scale-90 transition-transform flex-shrink-0"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
           </button>
