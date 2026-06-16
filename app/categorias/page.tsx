@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Categorías",
+  description: "Explorá todas las categorías de productos de limpieza: baño, cocina, lavandería, pisos y más.",
+};
 import TopBar from "@/components/layout/TopBar";
 import BottomNav from "@/components/layout/BottomNav";
 import { getCategories } from "@/lib/supabase/queries";

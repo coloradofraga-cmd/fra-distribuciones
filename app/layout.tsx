@@ -2,9 +2,27 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 
+const BASE_URL = "https://fra-distribuciones.vercel.app";
+
 export const metadata: Metadata = {
-  title: "FRA Distribuciones",
-  description: "Productos de limpieza para el hogar",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "FRA Distribuciones — Productos de limpieza",
+    template: "%s | FRA Distribuciones",
+  },
+  description: "Comprá productos de limpieza para el hogar con entrega a domicilio. Detergentes, desinfectantes, lavandinas y más.",
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: BASE_URL,
+    siteName: "FRA Distribuciones",
+    title: "FRA Distribuciones — Productos de limpieza",
+    description: "Comprá productos de limpieza para el hogar con entrega a domicilio.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

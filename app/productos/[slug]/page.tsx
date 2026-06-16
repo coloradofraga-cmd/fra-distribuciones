@@ -1,10 +1,26 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import BottomNav from "@/components/layout/BottomNav";
 import ProductDetail from "@/components/products/ProductDetail";
 import { getCategories, getProductBySlug, getRelatedProducts } from "@/lib/supabase/queries";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) return {};
+  return {
+    title: `${product.name} — ${product.brand}`,
+    description: `Comprá ${product.name} de ${product.brand}. ${product.unit}. Entrega a domicilio.`,
+    openGraph: {
+      title: `${product.name} — ${product.brand}`,
+      description: `Comprá ${product.name} de ${product.brand}. ${product.unit}.`,
+      ...(product.image ? { images: [{ url: product.image, width: 800, height: 800 }] } : {}),
+    },
+  };
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
