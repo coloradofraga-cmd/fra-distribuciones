@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type DbProduct, formatPrice } from "@/lib/supabase/types";
+import { useFavoritesStore } from "@/lib/store/favoritesStore";
 
 interface ProductCardProps {
   product: DbProduct;
@@ -9,11 +10,25 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, rank }: ProductCardProps) {
+  const { toggle, isFavorite } = useFavoritesStore();
+  const fav = isFavorite(product.id);
+
   return (
     <Link
       href={`/productos/${product.slug}`}
       className="w-40 flex-shrink-0 bg-white rounded-xl shadow-[0px_4px_20px_rgba(39,50,57,0.06)] overflow-hidden flex flex-col relative group"
     >
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(product); }}
+        className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+        aria-label={fav ? "Quitar de favoritos" : "Agregar a favoritos"}
+      >
+        <span className={`material-symbols-outlined text-[18px] ${fav ? "text-[var(--color-error-red)]" : "text-[var(--color-outline-variant)]"}`}
+          style={{ fontVariationSettings: fav ? "'FILL' 1" : "'FILL' 0" }}>
+          favorite
+        </span>
+      </button>
+
       <div className="h-32 bg-[var(--color-surface-gray)] overflow-hidden flex items-center justify-center">
         {product.image ? (
           <img
