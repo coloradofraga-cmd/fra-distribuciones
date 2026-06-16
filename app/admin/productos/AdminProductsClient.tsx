@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { DbProduct } from "@/lib/supabase/types";
 import { toast } from "sonner";
@@ -19,6 +19,9 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
   const [editing, setEditing] = useState<EditingProduct | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadingForId = useRef<string | null>(null);
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -58,6 +61,47 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
     }
   }
 
+  function triggerUpload(id: string) {
+    uploadingForId.current = id;
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    const id = uploadingForId.current;
+    if (!file || !id) return;
+    e.target.value = "";
+
+    setUploading(id);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("productId", id);
+
+    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(`Error: ${data.error ?? "desconocido"}`);
+      setUploading(null);
+      return;
+    }
+
+    const supabase = createClient();
+    const { error: updateError } = await supabase
+      .from("products")
+      .update({ image: data.imageUrl })
+      .eq("id", id);
+
+    if (updateError) {
+      toast.error("Error al guardar URL");
+    } else {
+      setProducts((prev) => prev.map((p) => p.id === id ? { ...p, image: data.imageUrl } : p));
+      toast.success("Imagen subida");
+    }
+    setUploading(null);
+  }
+
   async function deleteProduct(id: string) {
     if (!confirm("¿Eliminar este producto?")) return;
     setDeleting(id);
@@ -74,6 +118,13 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
 
   return (
     <div className="flex flex-col gap-4 max-w-2xl">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="flex items-center justify-between">
         <h1 className="text-[22px] font-bold text-[var(--color-deep-charcoal)]">Productos</h1>
         <span className="text-[13px] text-[var(--color-on-surface-variant)]">{filtered.length} productos</span>
@@ -136,6 +187,25 @@ export default function AdminProductsClient({ initialProducts }: { initialProduc
               </div>
             ) : (
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => triggerUpload(p.id)}
+                  disabled={uploading === p.id}
+                  className="w-12 h-12 rounded-lg bg-[var(--color-surface-gray)] flex-shrink-0 overflow-hidden relative group"
+                  title="Subir imagen"
+                >
+                  {p.image ? (
+                    <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="material-symbols-outlined text-[20px] text-[var(--color-outline-variant)]">
+                      add_photo_alternate
+                    </span>
+                  )}
+                  {uploading === p.id && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-white text-[16px] animate-spin">progress_activity</span>
+                    </div>
+                  )}
+                </button>
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-semibold text-[var(--color-deep-charcoal)] truncate">{p.name}</p>
                   <p className="text-[12px] text-[var(--color-outline)]">{p.brand} · {p.unit}</p>
